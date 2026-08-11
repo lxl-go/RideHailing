@@ -1,0 +1,289 @@
+syntax = "proto3";
+
+package driver.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "ride-hailing/services/driver-service/api/driver/v1;driverv1";
+
+service DriverService {
+  rpc EnsureDriver(EnsureDriverRequest) returns (DriverProfileReply) {
+    option (google.api.http) = {
+      post: "/v1/drivers/ensure"
+      body: "*"
+    };
+  }
+
+  rpc GetDriver(GetDriverRequest) returns (DriverProfileReply) {
+    option (google.api.http) = {
+      get: "/v1/drivers/{id}"
+    };
+  }
+
+  rpc UpdateDriver(UpdateDriverRequest) returns (DriverProfileReply) {
+    option (google.api.http) = {
+      put: "/v1/drivers/{id}"
+      body: "*"
+    };
+  }
+
+  rpc SubmitCertification(SubmitCertificationRequest) returns (CertificationReply) {
+    option (google.api.http) = {
+      post: "/v1/drivers/{id}/certification"
+      body: "*"
+    };
+  }
+
+  rpc GetCertification(GetCertificationRequest) returns (CertificationReply) {
+    option (google.api.http) = {
+      get: "/v1/drivers/{id}/certification"
+    };
+  }
+
+  rpc SaveVehicle(SaveVehicleRequest) returns (VehicleReply) {
+    option (google.api.http) = {
+      post: "/v1/drivers/{id}/vehicles"
+      body: "*"
+    };
+  }
+
+  rpc UpdateVehicle(UpdateVehicleRequest) returns (VehicleReply) {
+    option (google.api.http) = {
+      put: "/v1/drivers/{driver_id}/vehicles/{vehicle_id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteVehicle(DeleteVehicleRequest) returns (DeleteVehicleReply) {
+    option (google.api.http) = {
+      delete: "/v1/drivers/{driver_id}/vehicles/{vehicle_id}"
+    };
+  }
+
+  rpc ListVehicles(ListVehiclesRequest) returns (ListVehiclesReply) {
+    option (google.api.http) = {
+      get: "/v1/drivers/{id}/vehicles"
+    };
+  }
+
+  rpc ListMessages(ListMessagesRequest) returns (ListMessagesReply) {
+    option (google.api.http) = {
+      get: "/v1/drivers/{driver_id}/messages"
+    };
+  }
+
+  rpc AckMessage(AckMessageRequest) returns (AckMessageReply) {
+    option (google.api.http) = {
+      post: "/v1/drivers/{driver_id}/messages/{message_id}/ack"
+      body: "*"
+    };
+  }
+
+  rpc ReportDriverLocation(ReportDriverLocationRequest) returns (DriverLocationReply) {
+    option (google.api.http) = {
+      post: "/v1/drivers/{driver_id}/location/report"
+      body: "*"
+    };
+  }
+
+  rpc ReplayDriverTrack(ReplayDriverTrackRequest) returns (ReplayDriverTrackReply) {
+    option (google.api.http) = {
+      get: "/v1/drivers/{driver_id}/track/replay"
+    };
+  }
+}
+
+message EnsureDriverRequest {
+  int64 id = 1;
+  string phone = 2;
+}
+
+message GetDriverRequest {
+  int64 id = 1;
+}
+
+message UpdateDriverRequest {
+  int64 id = 1;
+  string name = 2;
+  string phone = 3;
+  string avatar_url = 4;
+  int32 service_status = 5;
+}
+
+message SubmitCertificationRequest {
+  int64 id = 1;
+  string real_name = 2;
+  string id_card_no = 3;
+  string license_no = 4;
+  string license_type = 5;
+  string city = 6;
+  string vehicle_license_no = 7;
+  string vehicle_photo_url = 8;
+  string face_photo_url = 9;
+}
+
+message GetCertificationRequest {
+  int64 id = 1;
+}
+
+message SaveVehicleRequest {
+  int64 id = 1;
+  string plate_no = 2;
+  string brand = 3;
+  string model = 4;
+  string color = 5;
+  string vehicle_type = 6;
+  int32 seats = 7;
+}
+
+message UpdateVehicleRequest {
+  int64 driver_id = 1;
+  int64 vehicle_id = 2;
+  string plate_no = 3;
+  string brand = 4;
+  string model = 5;
+  string color = 6;
+  string vehicle_type = 7;
+  int32 seats = 8;
+}
+
+message DeleteVehicleRequest {
+  int64 driver_id = 1;
+  int64 vehicle_id = 2;
+}
+
+message ListVehiclesRequest {
+  int64 id = 1;
+}
+
+message ListMessagesRequest {
+  int64 driver_id = 1;
+}
+
+message AckMessageRequest {
+  int64 driver_id = 1;
+  int64 message_id = 2;
+}
+
+message ReportDriverLocationRequest {
+  int64 driver_id = 1;
+  int64 order_id = 2;
+  double latitude = 3;
+  double longitude = 4;
+  double speed = 5;
+  double heading = 6;
+  string reported_at = 7;
+}
+
+message ReplayDriverTrackRequest {
+  int64 driver_id = 1;
+  int64 order_id = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message DriverProfile {
+  int64 id = 1;
+  string name = 2;
+  string phone = 3;
+  string avatar_url = 4;
+  int32 service_status = 5;
+  int32 certification_status = 6;
+  string created_at = 7;
+  string updated_at = 8;
+}
+
+message DriverCertification {
+  int64 id = 1;
+  int64 driver_id = 2;
+  string real_name = 3;
+  string id_card_no = 4;
+  string license_no = 5;
+  string license_type = 6;
+  string city = 7;
+  string vehicle_license_no = 8;
+  string vehicle_photo_url = 9;
+  string face_photo_url = 10;
+  int32 status = 11;
+  string reject_reason = 12;
+  string created_at = 13;
+  string updated_at = 14;
+}
+
+message DriverVehicle {
+  int64 id = 1;
+  int64 driver_id = 2;
+  string plate_no = 3;
+  string brand = 4;
+  string model = 5;
+  string color = 6;
+  string vehicle_type = 7;
+  int32 seats = 8;
+  int32 status = 9;
+  string created_at = 10;
+  string updated_at = 11;
+  int64 audit_id = 12;
+  int32 review_status = 13;
+  string reject_reason = 14;
+  string source = 15;
+  bool can_edit = 16;
+  bool can_delete = 17;
+}
+
+message DriverMessage {
+  int64 id = 1;
+  string topic = 2;
+  string title = 3;
+  string payload = 4;
+  bool delivered = 5;
+  string created_at = 6;
+}
+
+message DriverLocationPoint {
+  int64 id = 1;
+  int64 driver_id = 2;
+  int64 order_id = 3;
+  double latitude = 4;
+  double longitude = 5;
+  double speed = 6;
+  double heading = 7;
+  string reported_at = 8;
+  string created_at = 9;
+}
+
+message DriverProfileReply {
+  DriverProfile driver = 1;
+}
+
+message CertificationReply {
+  DriverCertification certification = 1;
+}
+
+message VehicleReply {
+  DriverVehicle vehicle = 1;
+}
+
+message DeleteVehicleReply {
+  bool success = 1;
+}
+
+message ListVehiclesReply {
+  repeated DriverVehicle items = 1;
+}
+
+message ListMessagesReply {
+  repeated DriverMessage items = 1;
+}
+
+message AckMessageReply {
+  bool success = 1;
+}
+
+message DriverLocationReply {
+  DriverLocationPoint location = 1;
+}
+
+message ReplayDriverTrackReply {
+  int64 total = 1;
+  repeated DriverLocationPoint items = 2;
+}

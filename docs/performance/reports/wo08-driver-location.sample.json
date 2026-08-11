@@ -1,0 +1,19 @@
+{
+  "reportNo": "PERF-WO08-DRIVER-LOCATION-SAMPLE",
+  "workorderNo": "WO-08",
+  "scenario": "driver_location",
+  "targetService": "driver-uni-app/h5",
+  "tool": "k6",
+  "qps": 5200,
+  "p50Ms": 28.5,
+  "p90Ms": 64.1,
+  "p99Ms": 93.8,
+  "errorRate": 0.00005,
+  "goroutinesBefore": 0,
+  "goroutinesAfter": 0,
+  "heapBeforeMb": 0,
+  "heapAfterMb": 0,
+  "verdict": "PASS",
+  "artifactPath": "docs/performance/reports/wo08-driver-location.sample.json",
+  "notes": "Driver location reporting sample. Redis GEO, stream replay and dispatch push will be connected in WO-11."
+}

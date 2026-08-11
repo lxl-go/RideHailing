@@ -1,0 +1,22 @@
+@import 'uview-plus/theme.scss';
+
+page {
+  background-color: #f4f7fb;
+  color: #1f2937;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 28rpx;
+}
+
+view, text { box-sizing: border-box; }
+
+$brand: #1677ff;
+$danger: #ee0a24;
+$success: #07c160;
+$warning: #f5a623;
+$text-main: #1f2937;
+$text-sub: #8a93a6;
+$text-mute: #98a2b3;
+$bg: #f4f7fb;
+$card-bg: #ffffff;
+$border: #f0f2f5;

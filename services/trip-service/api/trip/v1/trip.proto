@@ -1,0 +1,309 @@
+syntax = "proto3";
+
+package trip.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "ride-hailing/services/trip-service/api/trip/v1;tripv1";
+
+service TripService {
+  rpc SearchTrips(SearchTripsRequest) returns (SearchTripsReply) {
+    option (google.api.http) = {
+      get: "/v1/trips"
+    };
+  }
+
+  rpc GetTripDetail(GetTripDetailRequest) returns (GetTripDetailReply) {
+    option (google.api.http) = {
+      get: "/v1/trips/{id}"
+    };
+  }
+
+  rpc PublishTrip(PublishTripRequest) returns (PublishTripReply) {
+    option (google.api.http) = {
+      post: "/v1/driver/trips"
+      body: "*"
+    };
+  }
+
+  rpc ValidateLocation(ValidateLocationRequest) returns (ValidateLocationReply) {
+    option (google.api.http) = {
+      post: "/v1/driver/trips/locations/validate"
+      body: "*"
+    };
+  }
+
+  rpc PreviewTripPrice(PreviewTripPriceRequest) returns (PreviewTripPriceReply) {
+    option (google.api.http) = {
+      post: "/v1/driver/trips/price-preview"
+      body: "*"
+    };
+  }
+
+  rpc SuggestLocations(SuggestLocationsRequest) returns (SuggestLocationsReply) {
+    option (google.api.http) = {
+      post: "/v1/driver/trips/locations/suggest"
+      body: "*"
+    };
+  }
+
+  rpc ListDriverTrips(ListDriverTripsRequest) returns (ListDriverTripsReply) {
+    option (google.api.http) = {
+      get: "/v1/driver/trips"
+    };
+  }
+
+  rpc UpdateTripStatus(UpdateTripStatusRequest) returns (UpdateTripStatusReply) {
+    option (google.api.http) = {
+      put: "/v1/driver/trips/{id}/status"
+      body: "*"
+    };
+  }
+
+  rpc ListCoupons(ListCouponsRequest) returns (ListCouponsReply) {
+    option (google.api.http) = {
+      get: "/v1/coupons"
+    };
+  }
+
+  rpc ClaimCoupon(ClaimCouponRequest) returns (ClaimCouponReply) {
+    option (google.api.http) = {
+      post: "/v1/coupons/claim"
+      body: "*"
+    };
+  }
+
+  rpc PublishDemand(PublishDemandRequest) returns (PublishDemandReply) {
+    option (google.api.http) = {
+      post: "/v1/trips/demands"
+      body: "*"
+    };
+  }
+
+  rpc ListMyDemands(ListMyDemandsRequest) returns (ListMyDemandsReply) {
+    option (google.api.http) = {
+      get: "/v1/trips/demands/mine"
+    };
+  }
+
+  rpc CancelDemand(CancelDemandRequest) returns (CancelDemandReply) {
+    option (google.api.http) = {
+      post: "/v1/trips/demands/{id}/cancel"
+      body: "*"
+    };
+  }
+
+  rpc DeleteTrip(DeleteTripRequest) returns (DeleteTripReply) {
+    option (google.api.http) = {
+      delete: "/v1/driver/trips/{id}"
+    };
+  }
+}
+
+message TripItem {
+  int64 id = 1;
+  int64 driver_id = 2;
+  string origin = 3;
+  string destination = 4;
+  string depart_time = 5;
+  string arrive_time = 6;
+  int32 seats_total = 7;
+  int32 seats_available = 8;
+  double price = 9;
+  int32 status = 10;
+  string created_at = 11;
+  string reject_reason = 12;
+  int64 audit_operator_id = 13;
+  string audit_time = 14;
+  int32 route_distance_meters = 15;
+  int32 route_duration_seconds = 16;
+  bool is_deleted = 17;
+}
+
+message SearchTripsRequest {
+  string origin = 1;
+  string destination = 2;
+  string depart_date = 3;
+  int32 page = 4;
+  int32 page_size = 5;
+}
+
+message SearchTripsReply {
+  int64 total = 1;
+  repeated TripItem items = 2;
+}
+
+message GetTripDetailRequest {
+  int64 id = 1;
+}
+
+message GetTripDetailReply {
+  TripItem trip = 1;
+}
+
+message LocationInput {
+  string poi_id = 1;
+  string name = 2;
+  string formatted_address = 3;
+  double longitude = 4;
+  double latitude = 5;
+}
+
+message ValidateLocationRequest {
+  string keyword = 1;
+  LocationInput location = 2;
+}
+
+message ValidateLocationReply {
+  LocationInput location = 1;
+}
+
+message SuggestLocationsRequest {
+  string keyword = 1;
+  int32 limit = 2;
+}
+
+message SuggestLocationsReply {
+  repeated LocationInput locations = 1;
+}
+
+message PreviewTripPriceRequest {
+  LocationInput origin = 1;
+  LocationInput destination = 2;
+  string depart_time = 3;
+}
+
+message PreviewTripPriceReply {
+  LocationInput origin = 1;
+  LocationInput destination = 2;
+  int32 route_distance_meters = 3;
+  int32 route_duration_seconds = 4;
+  string arrive_time = 5;
+  double price = 6;
+  string pricing_rule_version = 7;
+}
+
+message PublishTripRequest {
+  string request_id = 1;
+  LocationInput origin = 2;
+  LocationInput destination = 3;
+  string depart_time = 4;
+  int32 seats_total = 5;
+  int64 driver_id = 6;
+}
+
+message PublishTripReply {
+  int64 trip_id = 1;
+  int32 status = 2;
+  double price = 3;
+  string arrive_time = 4;
+}
+
+message ListDriverTripsRequest {
+  int32 status = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int64 driver_id = 4;
+}
+
+message ListDriverTripsReply {
+  int64 total = 1;
+  repeated TripItem items = 2;
+}
+
+message UpdateTripStatusRequest {
+  int64 id = 1;
+  int32 status = 2;
+}
+
+message UpdateTripStatusReply {}
+
+message CouponItem {
+  int64 id = 1;
+  string coupon_no = 2;
+  string coupon_code = 3;
+  string name = 4;
+  string coupon_type = 5;
+  double face_value = 6;
+  double discount_rate = 7;
+  double threshold_amount = 8;
+  string valid_from = 9;
+  string valid_to = 10;
+  string status = 11;
+  bool claimed = 12;
+}
+
+message ListCouponsRequest {
+  int64 user_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message ListCouponsReply {
+  int64 total = 1;
+  repeated CouponItem items = 2;
+}
+
+message ClaimCouponRequest {
+  int64 user_id = 1;
+  string coupon_no = 2;
+  string idempotency_key = 3;
+}
+
+message ClaimCouponReply {
+  CouponItem coupon = 1;
+  bool duplicated = 2;
+}
+
+message TripDemandItem {
+  int64 id = 1;
+  int64 passenger_id = 2;
+  string origin = 3;
+  string destination = 4;
+  string depart_time = 5;
+  int32 seats = 6;
+  double budget = 7;
+  string remark = 8;
+  int32 status = 9;
+  string created_at = 10;
+}
+
+message PublishDemandRequest {
+  int64 passenger_id = 1;
+  string origin = 2;
+  string destination = 3;
+  string depart_time = 4;
+  int32 seats = 5;
+  double budget = 6;
+  string remark = 7;
+}
+
+message PublishDemandReply {
+  TripDemandItem demand = 1;
+}
+
+message ListMyDemandsRequest {
+  int64 passenger_id = 1;
+  int32 status = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListMyDemandsReply {
+  int64 total = 1;
+  repeated TripDemandItem items = 2;
+}
+
+message CancelDemandRequest {
+  int64 id = 1;
+  int64 passenger_id = 2;
+}
+
+message CancelDemandReply {}
+
+message DeleteTripRequest {
+  int64 id = 1;
+  int64 driver_id = 2;
+}
+
+message DeleteTripReply {}

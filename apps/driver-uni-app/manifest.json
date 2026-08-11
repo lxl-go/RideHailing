@@ -1,0 +1,8 @@
+{
+  "name": "RideHailing Driver",
+  "appid": "__UNI__RIDE_DRIVER",
+  "description": "Ride hailing driver client",
+  "versionName": "0.1.0",
+  "versionCode": "1",
+  "aMapKey": "22ba26c4d757d904aef8138acda60ab7"
+}

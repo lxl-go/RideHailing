@@ -1,0 +1,10 @@
+{
+  "pages": [
+    {
+      "path": "pages/home/index",
+      "style": {
+        "navigationBarTitleText": "乘客端"
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^u-(.*)": "uview-plus/components/u-$1/u-$1.vue",
+      "^up-(.*)": "uview-plus/components/u-$1/u-$1.vue"
+    }
+  },
+  "pages": [
+    { "path": "pages/login/login", "style": { "navigationBarTitleText": "登录", "navigationStyle": "custom" } },
+    { "path": "pages/home/home", "style": { "navigationBarTitleText": "出行", "enablePullDownRefresh": true } },
+    { "path": "pages/trips/trips", "style": { "navigationBarTitleText": "行程列表", "enablePullDownRefresh": true } },
+    { "path": "pages/tripDetail/tripDetail", "style": { "navigationBarTitleText": "行程详情" } },
+    { "path": "pages/publishDemand/publishDemand", "style": { "navigationBarTitleText": "发布需求" } },
+    { "path": "pages/orders/orders", "style": { "navigationBarTitleText": "我的订单", "enablePullDownRefresh": true } },
+    { "path": "pages/orderDetail/orderDetail", "style": { "navigationBarTitleText": "订单详情" } },
+    { "path": "pages/orderChat/orderChat", "style": { "navigationBarTitleText": "联系司机" } },
+    { "path": "pages/tracking/tracking", "style": { "navigationBarTitleText": "行程追踪", "enablePullDownRefresh": true } },
+    { "path": "pages/aiAssistant/aiAssistant", "style": { "navigationBarTitleText": "AI 助手" } },
+    { "path": "pages/floodReport/floodReport", "style": { "navigationBarTitleText": "积水上报" } },
+    { "path": "pages/coupons/coupons", "style": { "navigationBarTitleText": "我的优惠券", "enablePullDownRefresh": true } },
+    { "path": "pages/profile/profile", "style": { "navigationBarTitleText": "我的" } }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "网约车乘客端",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f4f7fb"
+  },
+  "tabBar": {
+    "color": "#9aa3b2",
+    "selectedColor": "#1677ff",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/home/home", "text": "首页", "iconPath": "static/tab/home.png", "selectedIconPath": "static/tab/home-active.png" },
+      { "pagePath": "pages/orders/orders", "text": "订单", "iconPath": "static/tab/orders.png", "selectedIconPath": "static/tab/orders-active.png" },
+      { "pagePath": "pages/tracking/tracking", "text": "追踪", "iconPath": "static/tab/tracking.png", "selectedIconPath": "static/tab/tracking-active.png" },
+      { "pagePath": "pages/aiAssistant/aiAssistant", "text": "AI", "iconPath": "static/tab/ai.png", "selectedIconPath": "static/tab/ai-active.png" },
+      { "pagePath": "pages/profile/profile", "text": "我的", "iconPath": "static/tab/ticket.png", "selectedIconPath": "static/tab/ticket-active.png" }
+    ]
+  }
+}

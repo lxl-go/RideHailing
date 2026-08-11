@@ -1,0 +1,19 @@
+{
+  "reportNo": "PERF-WO08-ADMIN-SAMPLE",
+  "workorderNo": "WO-08",
+  "scenario": "admin_http",
+  "targetService": "admin-platform/server",
+  "tool": "k6",
+  "qps": 1180.4,
+  "p50Ms": 42.6,
+  "p90Ms": 91.3,
+  "p99Ms": 168.7,
+  "errorRate": 0.0002,
+  "goroutinesBefore": 42,
+  "goroutinesAfter": 44,
+  "heapBeforeMb": 26.8,
+  "heapAfterMb": 31.4,
+  "verdict": "PASS",
+  "artifactPath": "docs/performance/reports/wo08-admin-http.sample.json",
+  "notes": "Admin performance summary/scenario/runtime smoke sample. Full authenticated staging run should replace this artifact."
+}

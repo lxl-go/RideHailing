@@ -1,0 +1,44 @@
+{
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^u-(.*)": "uview-plus/components/u-$1/u-$1.vue",
+      "^up-(.*)": "uview-plus/components/u-$1/u-$1.vue"
+    }
+  },
+  "pages": [
+    { "path": "pages/login/login", "style": { "navigationBarTitleText": "司机登录", "navigationStyle": "custom" } },
+    { "path": "pages/home/home", "style": { "navigationBarTitleText": "出车首页", "enablePullDownRefresh": true } },
+    { "path": "pages/certification/certification", "style": { "navigationBarTitleText": "司机认证" } },
+    { "path": "pages/vehicle/vehicle", "style": { "navigationBarTitleText": "我的车辆" } },
+    { "path": "pages/publishTrip/publishTrip", "style": { "navigationBarTitleText": "发布行程" } },
+    { "path": "pages/myTrips/myTrips", "style": { "navigationBarTitleText": "我的行程", "enablePullDownRefresh": true } },
+    { "path": "pages/pendingOrders/pendingOrders", "style": { "navigationBarTitleText": "待接订单", "enablePullDownRefresh": true } },
+    { "path": "pages/orderDetail/orderDetail", "style": { "navigationBarTitleText": "订单详情" } },
+    { "path": "pages/orderChat/orderChat", "style": { "navigationBarTitleText": "联系乘客" } },
+    { "path": "pages/locationReport/locationReport", "style": { "navigationBarTitleText": "位置上报" } },
+    { "path": "pages/trackReplay/trackReplay", "style": { "navigationBarTitleText": "轨迹回放" } },
+    { "path": "pages/aiAlerts/aiAlerts", "style": { "navigationBarTitleText": "AI 预警", "enablePullDownRefresh": true } },
+    { "path": "pages/incomeLedger/incomeLedger", "style": { "navigationBarTitleText": "收入明细", "enablePullDownRefresh": true } },
+    { "path": "pages/profile/profile", "style": { "navigationBarTitleText": "我的" } }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "网约车司机端",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f4f7fb"
+  },
+  "tabBar": {
+    "color": "#9aa3b2",
+    "selectedColor": "#1677ff",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/home/home", "text": "首页", "iconPath": "static/tab/home.png", "selectedIconPath": "static/tab/home-active.png" },
+      { "pagePath": "pages/pendingOrders/pendingOrders", "text": "接单", "iconPath": "static/tab/orders.png", "selectedIconPath": "static/tab/orders-active.png" },
+      { "pagePath": "pages/incomeLedger/incomeLedger", "text": "钱包", "iconPath": "static/tab/wallet.png", "selectedIconPath": "static/tab/wallet-active.png" },
+      { "pagePath": "pages/locationReport/locationReport", "text": "位置", "iconPath": "static/tab/location.png", "selectedIconPath": "static/tab/location-active.png" },
+      { "pagePath": "pages/profile/profile", "text": "我的", "iconPath": "static/tab/shuttle.png", "selectedIconPath": "static/tab/shuttle-active.png" }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "ride-hailing-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "admin-platform/web",
+    "apps/passenger-uni-app/uni-app",
+    "apps/driver-uni-app/uni-app"
+  ]
+}

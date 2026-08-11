@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package auth.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "ride-hailing/services/auth-service/api/auth/v1;authv1";
+
+service AuthService {
+  rpc SendLoginCode(SendLoginCodeRequest) returns (SendLoginCodeReply) {
+    option (google.api.http) = {
+      post: "/v1/auth/sms/send"
+      body: "*"
+    };
+  }
+
+  rpc Login(LoginRequest) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/v1/auth/login"
+      body: "*"
+    };
+  }
+
+  rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenReply) {
+    option (google.api.http) = {
+      post: "/v1/auth/verify"
+      body: "*"
+    };
+  }
+
+  rpc RefreshToken(RefreshTokenRequest) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/v1/auth/refresh"
+      body: "*"
+    };
+  }
+
+  rpc Logout(LogoutRequest) returns (LogoutReply) {
+    option (google.api.http) = {
+      post: "/v1/auth/logout"
+      body: "*"
+    };
+  }
+
+  rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionReply) {
+    option (google.api.http) = {
+      post: "/v1/auth/permission/check"
+      body: "*"
+    };
+  }
+}
+
+message SendLoginCodeRequest {
+  string mobile = 1;
+  string role = 2;
+}
+
+message SendLoginCodeReply {
+  bool sent = 1;
+}
+
+message LoginRequest {
+  string principal = 1;
+  string role = 2;
+  string code = 3;
+}
+
+message LoginReply {
+  int64 user_id = 1;
+  string role = 2;
+  string access_token = 3;
+  string token_type = 4;
+  int64 expires_in = 5;
+  string refresh_token = 6;
+}
+
+message VerifyTokenRequest {
+  string authorization = 1;
+}
+
+message VerifyTokenReply {
+  int64 user_id = 1;
+  string role = 2;
+  string jti = 3;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message LogoutRequest {
+  string refresh_token = 1;
+}
+
+message LogoutReply {
+  bool logged_out = 1;
+}
+
+message CheckPermissionRequest {
+  int64 user_id = 1;
+  string permission_code = 2;
+}
+
+message CheckPermissionReply {
+  bool allowed = 1;
+}

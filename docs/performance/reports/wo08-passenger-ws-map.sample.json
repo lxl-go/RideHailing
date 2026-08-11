@@ -1,0 +1,19 @@
+{
+  "reportNo": "PERF-WO08-PASSENGER-WS-SAMPLE",
+  "workorderNo": "WO-08",
+  "scenario": "passenger_ws_map",
+  "targetService": "passenger-uni-app/h5",
+  "tool": "k6 + browser profiling",
+  "qps": 5000,
+  "p50Ms": 76.2,
+  "p90Ms": 141.8,
+  "p99Ms": 196.4,
+  "errorRate": 0.0007,
+  "goroutinesBefore": 0,
+  "goroutinesAfter": 0,
+  "heapBeforeMb": 0,
+  "heapAfterMb": 0,
+  "verdict": "WARN",
+  "artifactPath": "docs/performance/reports/wo08-passenger-ws-map.sample.json",
+  "notes": "Passenger WebSocket and map rendering acceptance placeholder. Real WebSocket hub and map trace are reserved for WO-11."
+}

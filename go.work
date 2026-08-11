@@ -1,0 +1,14 @@
+// ride-hailing 可复用 monorepo（对标文档项目根级目录规范）
+go 1.26
+
+use (
+	./admin-platform/server
+	./pkg
+	./services/auth-service
+	./services/driver-service
+	./services/gateway-service
+	./services/order-service
+	./services/passenger-service
+	./services/review-service
+	./services/trip-service
+)

@@ -1,0 +1,29 @@
+server:
+  http:
+    addr: 0.0.0.0:9030
+    timeout: 10s
+  grpc:
+    addr: 0.0.0.0:9130
+    timeout: 10s
+  snowflake_node: 34
+data:
+  database:
+    driver: mysql
+    source: root:root@tcp(127.0.0.1:3306)/01ride?charset=utf8mb4&parseTime=True&loc=Local
+real_name:
+  tencent:
+    enabled: true
+    secret_id: PMMOgfTQhD5RbPv4
+    secret_key: YpxGgpHnjxHP1CU7j9AuPWVnC8zDSmh7
+    endpoint: https://ap-beijing.cloudmarket-apigw.com/service-hl92rg03/id/check
+    timeout: 5s
+registry:
+  nacos:
+    enabled: false
+    server_addr: 127.0.0.1
+    server_port: 8848
+    namespace_id: public
+    group: DEFAULT_GROUP
+    username: nacos
+    password: nacos
+    timeout_ms: 5000

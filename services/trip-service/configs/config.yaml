@@ -1,0 +1,38 @@
+server:
+  http:
+    addr: 0.0.0.0:9040
+    timeout: 5s
+  grpc:
+    addr: 0.0.0.0:9140
+    timeout: 5s
+  snowflake_node: 31
+data:
+  database:
+    driver: mysql
+    source: root:root@tcp(127.0.0.1:3306)/01ride?charset=utf8mb4&parseTime=True&loc=Local
+redis:
+  addr: 127.0.0.1:6379
+  username: ""
+  password: ""
+  db: 0
+  pool_size: 10
+  dial_timeout: 5s
+  read_timeout: 3s
+  write_timeout: 3s
+  lock:
+    key_prefix: app
+    default_ttl: 30s
+amap:
+  web_service_key: "22ba26c4d757d904aef8138acda60ab7"
+  base_url: https://restapi.amap.com
+  timeout: 3s
+registry:
+  nacos:
+    enabled: false
+    server_addr: 127.0.0.1
+    server_port: 8848
+    namespace_id: public
+    group: DEFAULT_GROUP
+    username: nacos
+    password: nacos
+    timeout_ms: 5000

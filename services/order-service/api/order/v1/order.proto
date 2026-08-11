@@ -1,0 +1,297 @@
+syntax = "proto3";
+
+package order.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "ride-hailing/services/order-service/api/order/v1;orderv1";
+
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderReply) {
+    option (google.api.http) = {
+      post: "/v1/orders"
+      body: "*"
+    };
+  }
+
+  rpc CancelOrder(CancelOrderRequest) returns (CancelOrderReply) {
+    option (google.api.http) = {
+      post: "/v1/orders/{id}/cancel"
+      body: "*"
+    };
+  }
+
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersReply) {
+    option (google.api.http) = {
+      get: "/v1/orders"
+    };
+  }
+
+  rpc GetOrderDetail(GetOrderDetailRequest) returns (GetOrderDetailReply) {
+    option (google.api.http) = {
+      get: "/v1/orders/{id}"
+    };
+  }
+
+  rpc PendingOrders(PendingOrdersRequest) returns (PendingOrdersReply) {
+    option (google.api.http) = {
+      get: "/v1/driver/orders/pending"
+    };
+  }
+
+  rpc AcceptOrder(AcceptOrderRequest) returns (AcceptOrderReply) {
+    option (google.api.http) = {
+      post: "/v1/driver/orders/{id}/accept"
+      body: "*"
+    };
+  }
+
+  rpc RejectOrder(RejectOrderRequest) returns (RejectOrderReply) {
+    option (google.api.http) = {
+      post: "/v1/driver/orders/{id}/reject"
+      body: "*"
+    };
+  }
+
+  rpc StartPickup(StartPickupRequest) returns (StartPickupReply) {
+    option (google.api.http) = {
+      post: "/v1/driver/orders/{id}/start-pickup"
+      body: "*"
+    };
+  }
+
+  rpc StartDelivery(StartDeliveryRequest) returns (StartDeliveryReply) {
+    option (google.api.http) = {
+      post: "/v1/driver/orders/{id}/start-delivery"
+      body: "*"
+    };
+  }
+
+  rpc CompleteOrder(CompleteOrderRequest) returns (CompleteOrderReply) {
+    option (google.api.http) = {
+      post: "/v1/driver/orders/{id}/complete"
+      body: "*"
+    };
+  }
+
+  rpc CreatePayment(CreatePaymentRequest) returns (CreatePaymentReply) {
+    option (google.api.http) = {
+      post: "/v1/payments"
+      body: "*"
+    };
+  }
+
+  rpc MarkPaymentPaid(MarkPaymentPaidRequest) returns (MarkPaymentPaidReply) {
+    option (google.api.http) = {
+      post: "/v1/payments/paid"
+      body: "*"
+    };
+  }
+
+  rpc GetPaymentStatus(GetPaymentStatusRequest) returns (GetPaymentStatusReply) {
+    option (google.api.http) = {
+      get: "/v1/payments/status"
+    };
+  }
+
+  rpc GetDriverIncome(DriverIncomeRequest) returns (DriverIncomeReply) {
+    option (google.api.http) = {
+      get: "/v1/driver/income"
+    };
+  }
+}
+
+message CreateOrderRequest {
+  int64 trip_id = 1;
+  int32 seats_booked = 2;
+  int64 passenger_id = 3;
+}
+
+message CreateOrderReply {
+  int64 order_id = 1;
+  double total_price = 2;
+}
+
+message CancelOrderRequest {
+  int64 id = 1;
+  int64 passenger_id = 2;
+  string idempotency_key = 3;
+}
+
+message CancelOrderReply {}
+
+message ListOrdersRequest {
+  int32 status = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int64 passenger_id = 4;
+  int64 driver_id = 5;
+}
+
+message GetOrderDetailRequest {
+  int64 id = 1;
+  int64 passenger_id = 2;
+}
+
+message PendingOrdersRequest {
+  int64 trip_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int64 driver_id = 4;
+}
+
+message AcceptOrderRequest {
+  int64 id = 1;
+  int64 driver_id = 2;
+  string idempotency_key = 3;
+}
+
+message AcceptOrderReply {}
+
+message RejectOrderRequest {
+  int64 id = 1;
+  int64 driver_id = 2;
+  string idempotency_key = 3;
+  string reject_reason = 4;
+}
+
+message RejectOrderReply {}
+
+message StartPickupRequest {
+  int64 id = 1;
+  int64 driver_id = 2;
+  string idempotency_key = 3;
+}
+
+message StartPickupReply {}
+
+message StartDeliveryRequest {
+  int64 id = 1;
+  int64 driver_id = 2;
+  string idempotency_key = 3;
+}
+
+message StartDeliveryReply {}
+
+message CompleteOrderRequest {
+  int64 id = 1;
+  int64 driver_id = 2;
+  string idempotency_key = 3;
+}
+
+message CompleteOrderReply {}
+
+message CreatePaymentRequest {
+  int64 order_id = 1;
+  int64 passenger_id = 2;
+  string channel = 3;
+}
+
+message CreatePaymentReply {
+  int64 payment_id = 1;
+  int64 order_id = 2;
+  string out_trade_no = 3;
+  string total_amount = 4;
+  int32 status = 5;
+}
+
+message MarkPaymentPaidRequest {
+  string out_trade_no = 1;
+  string alipay_trade_no = 2;
+  string app_id = 3;
+  string total_amount = 4;
+  string trade_status = 5;
+  string notify_payload = 6;
+}
+
+message MarkPaymentPaidReply {
+  int64 order_id = 1;
+  string out_trade_no = 2;
+  int32 status = 3;
+  bool duplicated = 4;
+  int64 payment_id = 5;
+  int32 order_status = 6;
+}
+
+message GetPaymentStatusRequest {
+  string out_trade_no = 1;
+  int64 order_id = 2;
+  int64 passenger_id = 3;
+}
+
+message GetPaymentStatusReply {
+  int64 order_id = 1;
+  string out_trade_no = 2;
+  string total_amount = 3;
+  int32 status = 4;
+  int64 payment_id = 5;
+}
+
+message OrderItem {
+  int64 id = 1;
+  int64 trip_id = 2;
+  int64 passenger_id = 3;
+  int64 driver_id = 4;
+  string origin = 5;
+  string destination = 6;
+  string depart_time = 7;
+  int32 seats_booked = 8;
+  double total_price = 9;
+  int32 status = 10;
+  string created_at = 11;
+  string accepted_at = 12;
+  string reject_reason = 13;
+  string rejected_at = 14;
+  double refund_amount = 15;
+  string refunded_at = 16;
+}
+
+message ListOrdersReply {
+  int64 total = 1;
+  repeated OrderItem items = 2;
+}
+
+message GetOrderDetailReply {
+  OrderItem order = 1;
+}
+
+message PendingOrderItem {
+  int64 id = 1;
+  int64 trip_id = 2;
+  int64 passenger_id = 3;
+  int32 seats_booked = 4;
+  double total_price = 5;
+  int32 status = 6;
+  string created_at = 7;
+}
+
+message PendingOrdersReply {
+  int64 total = 1;
+  repeated PendingOrderItem items = 2;
+}
+
+message DriverIncomeRequest {
+  int64 driver_id = 1;
+  string start_time = 2;
+  string end_time = 3;
+  int32 page = 4;
+  int32 page_size = 5;
+}
+
+message DriverIncomeRecord {
+  int64 order_id = 1;
+  int64 passenger_id = 2;
+  int64 trip_id = 3;
+  string origin = 4;
+  string destination = 5;
+  double amount = 6;
+  int32 status = 7;
+  string accepted_at = 8;
+}
+
+message DriverIncomeReply {
+  int64 today_orders = 1;
+  double today_income = 2;
+  double pending_withdraw = 3;
+  repeated DriverIncomeRecord records = 4;
+}

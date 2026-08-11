@@ -1,0 +1,54 @@
+server:
+  http:
+    addr: 0.0.0.0:9000
+    timeout: 15s
+registry:
+  nacos:
+    enabled: false
+    server_addr: 127.0.0.1
+    server_port: 8848
+    namespace_id: public
+    group: DEFAULT_GROUP
+    username: nacos
+    password: nacos
+    timeout_ms: 5000
+auth:
+  jwt:
+    enabled: true
+    secret: ride-hailing-dev-secret-change-me # 本地联调 JWT 密钥；上线请替换为新的强随机密钥
+    issuer: ride-hailing
+    expire_seconds: 7200
+    compatible_header_enabled: false
+  permission:
+    cache_ttl: 30s
+    failure_threshold: 3
+    circuit_open_ttl: 10s
+clients:
+  auth:
+    endpoint: discovery:///auth-service
+    http_base_url: http://127.0.0.1:9010
+  trip:
+    endpoint: discovery:///trip-service
+    http_base_url: http://127.0.0.1:9040
+  order:
+    endpoint: discovery:///order-service
+    http_base_url: http://127.0.0.1:9050
+  review:
+    endpoint: discovery:///review-service
+    http_base_url: http://127.0.0.1:9060
+  passenger:
+    endpoint: discovery:///passenger-service
+    http_base_url: http://127.0.0.1:9020
+  driver:
+    endpoint: discovery:///driver-service
+    http_base_url: http://127.0.0.1:9030
+alipay:
+  app_id: "9021000161685035"
+  private_key: "MIIEowIBAAKCAQEAlJzcguGE7rvPxqkwRmFsKiZmc/ymK1sZiKrhznbm+/QLXlIhJ+yf/1QSqP+SM4WeXr2qGP34iLpnpVjgWAFrMTlZnBn6DGaIaecMJUHu/gpMu2STOC9dXhdvZm99fgtmLcFbafyn8oaIc9/Om6dn8fCH9V3/O44uXymMwi0f5Vwf82HlyyMJsKUFxfKgiojaMaKCwdvcDSqRem6otcm6DQvz+hTaPE9eEiWFw4LmYAp4zFQgIuxKleAu3qUJIkpTMUsfRzJ5InDYPLBQIU+8D6NdXoPgvoKpBIrk3KfOmqYGz5ctH2rNCF/wEibisAXt0/IWG4C25/ThAKZejKgR/wIDAQABAoIBAHk88uRPSNxeGaZvNjPknJJSW3i6H3H1UwJcrfR6qfvX30JmbCge8XQiSUrXnJUtp8KQpmjXIF+i+pU4yWTiW2l/6OvhgU2GhDkpRY5LmMZk7q5d4YCPm3L8WWRPBijC8evX91Siyvye5kjpx6rSSolk+fWhZmxWlNwLkIqEt6WrXbtxp8O1riGF2T2dmjsEeFfoVM+vKBwq88RF9r2Ol0WhijcueDV4bRKe4KpmWuKwx+cIxOvDg7jFSls5Ns0O7/7kPmbvFaKYfYGJFThfPX7UwUaAqSNXK3eNS3+pwA0qIe7S2qQjBYn8RPSyJHcBNgTSykkWE/+3ZLJbT6BZ+ykCgYEA4bfABBC7fL7wfiBUx0DS/RdZw2+sVtc/DcBIKhNTWJ8Zs1UFh0nviBk8nf3l5T+2JOcOkxETGqliq7hkBeJ97TQ4vv2zdFnhwXpWOY/D+U4PlZXBwXi3LKGuMJrEKr040Yzz5XwsQO3xs8ge8hxFFxPIdANsEZ8Bd/dkOlwAECMCgYEAqIzyuXBLtAnmY+uMd+rWv0Z50CuqNXd79bpS8+2bRQBBOr8/d5/gMxQGhg7n5lTXzHe1y7c4bmwqwfGl9jWuqKQNuHmU3oSQ8jweBYjpIEiH6PXUaPGM19KUwH3K/e5WanUKCWalkQaEehSvePtrPY/v33NMav6hsXkSZz7OpnUCgYB2tzM5sCc7/Bz26UBNsA2IadCfVsvYvMsAC4KpBpMOiFd3F5+ZwUxHU6arHg/dHD5LeG8U8KUQn8gysv+AjNhYet/hrAPHjUKMhTB2g+O56tGNhj9q53fH9J1uGOhV5kHNDQp2R3HrEHrQaM/F3RKFibUjN22OcwfNtgM0IpEx6wKBgFbYiRhTbC5QC43giHghYJUd0xYX6ZOzBQQQBT36Z86d2v5SHHmevv6Siun4NDTR8n9AD0PwG/uJcF6ODF1YO65ZGVi8DKC63ZRytWVUrgocVSsLv25zR4bM0ih8qGM+svgXZhyB7z1ShmAA2IkVwqPtzkLsPavDl7zCDWF1UzUhAoGBAN2/xPlTE6LAYquz5n5BbRCV/J7BE6SCeUWI6ZedVtE0KahBMpKv1V58XeDtKUedwixG8KWP8EChDdjLAc+3uP8wfNQHXr0i131pF/QctC6ypHo3sbZX7G2adqcj+w2FrZwwIPeyotdvQmf8m6rXplGNnIpAXnuz+pupqcH5MRfa"
+  alipay_public_key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA60KM89CCMb9mK8oMV86ebjsYR1I/yu3DLtBOI2gDGf3r2X9i22enZ1nPz5rMxHXyuR2JDa7AzYk0j6z0DIK60CSo01GVJAlH89uWvk2iyjN/5nweohIj2N5vHhtKbMm/lLV+ZwLAt0LUQx4EFc+MORZ+QxGFp+Vy+YX0Nj2OypN5/1sJc6JzF8Yiro6qq9dpR0hTYlMUEM2op9VzTlEPwSLZuaSMCOxonqjUof8CiuloJn98kfx6y8LQT7oHQwJEpRC2uF8R1LYTixepHUrw7RP+ucPsGf61kN2UNbiGnh5T8OIwXiAcSkvipNFZJJvzEN10yNIcZdaoJj+ZPaN6iwIDAQAB"
+  production: false
+  notify_url: "http://5f5a8fe7.r22.cpolar.top/api/v1/pay/notify"
+  return_url: "http://5f5a8fe7.r22.cpolar.top/pay/success"
+amap:
+  web_key: "22ba26c4d757d904aef8138acda60ab7"
+  timeout: 5s

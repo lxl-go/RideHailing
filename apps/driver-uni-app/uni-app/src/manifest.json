@@ -1,0 +1,35 @@
+{
+  "name": "网约车司机端",
+  "appid": "__UNI__DRIVER",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "aMapKey": "22ba26c4d757d904aef8138acda60ab7",
+  "description": "网约车出行司机端",
+  "h5": {
+    "title": "网约车司机端",
+    "router": {"mode": "hash"},
+    "sdkConfigs": {
+      "maps": {
+        "amap": {
+          "key": "22ba26c4d757d904aef8138acda60ab7",
+          "securityJsCode": ""
+        }
+      }
+    }
+  },
+  "mp-weixin": {
+    "appid": "",
+    "setting": {"urlCheck": false}
+  },
+  "app-plus": {
+    "distribute": {
+      "android": {
+        "permissions": [
+          "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>"
+        ]
+      }
+    }
+  }
+}

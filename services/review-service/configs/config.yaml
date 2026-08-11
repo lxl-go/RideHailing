@@ -1,0 +1,22 @@
+server:
+  http:
+    addr: 0.0.0.0:9060
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9160
+    timeout: 1s
+  snowflake_node: 33
+data:
+  database:
+    driver: mysql
+    source: root:root@tcp(127.0.0.1:3306)/01ride?charset=utf8mb4&parseTime=True&loc=Local
+registry:
+  nacos:
+    enabled: false
+    server_addr: 127.0.0.1
+    server_port: 8848
+    namespace_id: public
+    group: DEFAULT_GROUP
+    username: nacos
+    password: nacos
+    timeout_ms: 5000

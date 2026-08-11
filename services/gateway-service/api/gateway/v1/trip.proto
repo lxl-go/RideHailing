@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "ride-hailing/services/gateway-service/api/gateway/v1;gatewayv1";
+
+service GatewayTripService {
+  rpc SearchTrips(SearchTripsRequest) returns (SearchTripsReply) {
+    option (google.api.http) = { get: "/carpool/trips" };
+  }
+  rpc GetTripDetail(GetTripDetailRequest) returns (GetTripDetailReply) {
+    option (google.api.http) = { get: "/carpool/trips/{id}" };
+  }
+  rpc PublishTrip(PublishTripRequest) returns (PublishTripReply) {
+    option (google.api.http) = {
+      post: "/carpool/trips"
+      body: "*"
+    };
+  }
+}
+
+message SearchTripsRequest {
+  string origin = 1;
+  string destination = 2;
+  string depart_date = 3;
+  int32 page = 4;
+  int32 page_size = 5;
+}
+
+message SearchTripsReply {
+  int64 total = 1;
+}
+
+message GetTripDetailRequest {
+  int64 id = 1;
+}
+
+message GetTripDetailReply {}
+
+message PublishTripRequest {
+  string origin = 1;
+  string destination = 2;
+  string depart_time = 3;
+  string arrive_time = 4;
+  int32 seats_total = 5;
+  double price = 6;
+}
+
+message PublishTripReply {
+  int64 trip_id = 1;
+}

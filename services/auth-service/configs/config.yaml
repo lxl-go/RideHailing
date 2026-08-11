@@ -1,0 +1,42 @@
+server:
+  http:
+    addr: 0.0.0.0:9010
+    timeout: 15s
+  grpc:
+    addr: 0.0.0.0:9110
+    timeout: 15s
+data:
+  database:
+    driver: mysql
+    source: root:root@tcp(127.0.0.1:3306)/01ride?charset=utf8mb4&parseTime=True&loc=Local
+  redis:
+    addr: 127.0.0.1:6379
+    password: ""
+    db: 0
+auth:
+  require_sms_code_verify: true
+  refresh_token_expire_seconds: 604800
+  jwt:
+    enabled: true
+    secret: ride-hailing-dev-secret-change-me # 必须和 gateway-service 的 auth.jwt.secret 保持一致；上线请替换为新的强随机密钥
+    issuer: ride-hailing
+    expire_seconds: 7200
+  sms:
+    code_expire_seconds: 300
+    send_cooldown_seconds: 60
+    max_verify_attempts: 3
+    verify_lock_seconds: 300
+    ihuyi:
+      endpoint: https://api.ihuyi.com/sms/Submit.json
+      account: "C76777563"
+      password: "eec0f7e59c463eebd22e0102d37a07d0"
+registry:
+  nacos:
+    enabled: false
+    server_addr: 127.0.0.1
+    server_port: 8848
+    namespace_id: public
+    group: DEFAULT_GROUP
+    username: nacos
+    password: nacos
+    timeout_ms: 5000

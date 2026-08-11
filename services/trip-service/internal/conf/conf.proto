@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package trip.internal.conf;
+
+option go_package = "ride-hailing/services/trip-service/internal/conf;conf";
+
+message Bootstrap {
+  Server server = 1;
+  Data data = 2;
+  Redis redis = 3;
+  AMap amap = 4;
+  Registry registry = 5;
+}
+
+message Redis {
+  message Lock {
+    string key_prefix = 1;
+    string default_ttl = 2;
+  }
+  string addr = 1;
+  string username = 2;
+  string password = 3;
+  int32 db = 4;
+  int32 pool_size = 5;
+  string dial_timeout = 6;
+  string read_timeout = 7;
+  string write_timeout = 8;
+  Lock lock = 9;
+}
+
+message AMap {
+  string web_service_key = 1;
+  string base_url = 2;
+  string timeout = 3;
+}
+
+message Server {
+  message HTTP {
+    string addr = 1;
+    string timeout = 2;
+  }
+  message GRPC {
+    string addr = 1;
+    string timeout = 2;
+  }
+  HTTP http = 1;
+  GRPC grpc = 2;
+  int64 snowflake_node = 3;
+}
+
+message Data {
+  message Database {
+    string driver = 1;
+    string source = 2;
+  }
+  Database database = 1;
+}
+
+message Registry {
+  message Nacos {
+    bool enabled = 1;
+    string server_addr = 2;
+    uint64 server_port = 3;
+    string namespace_id = 4;
+    string group = 5;
+    string username = 6;
+    string password = 7;
+    uint64 timeout_ms = 8;
+  }
+  Nacos nacos = 1;
+}

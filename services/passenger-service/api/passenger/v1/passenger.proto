@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package passenger.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "ride-hailing/services/passenger-service/api/passenger/v1;passengerv1";
+
+service PassengerService {
+  rpc EnsurePassenger(EnsurePassengerRequest) returns (PassengerProfileReply) {
+    option (google.api.http) = {
+      post: "/v1/passengers/ensure"
+      body: "*"
+    };
+  }
+
+  rpc GetPassenger(GetPassengerRequest) returns (PassengerProfileReply) {
+    option (google.api.http) = {
+      get: "/v1/passengers/{id}"
+    };
+  }
+
+  rpc UpdatePassenger(UpdatePassengerRequest) returns (PassengerProfileReply) {
+    option (google.api.http) = {
+      put: "/v1/passengers/{id}"
+      body: "*"
+    };
+  }
+}
+
+message EnsurePassengerRequest {
+  int64 id = 1;
+  string phone = 2;
+}
+
+message GetPassengerRequest {
+  int64 id = 1;
+}
+
+message UpdatePassengerRequest {
+  int64 id = 1;
+  string nickname = 2;
+  string phone = 3;
+  string avatar_url = 4;
+  string common_address = 5;
+  string payment_preference = 6;
+}
+
+message PassengerProfile {
+  int64 id = 1;
+  string nickname = 2;
+  string phone = 3;
+  string avatar_url = 4;
+  string common_address = 5;
+  string payment_preference = 6;
+  int32 status = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message PassengerProfileReply {
+  PassengerProfile passenger = 1;
+}

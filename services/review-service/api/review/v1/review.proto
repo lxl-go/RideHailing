@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package review.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "ride-hailing/services/review-service/api/review/v1;reviewv1";
+
+service ReviewService {
+  rpc SubmitReview(SubmitReviewRequest) returns (SubmitReviewReply) {
+    option (google.api.http) = {
+      post: "/v1/reviews"
+      body: "*"
+    };
+  }
+
+  rpc GetMyReview(GetMyReviewRequest) returns (GetMyReviewReply) {
+    option (google.api.http) = {
+      get: "/v1/reviews/mine/{order_id}"
+    };
+  }
+}
+
+message SubmitReviewRequest {
+  int64 order_id = 1;
+  int64 to_user_id = 2;
+  int32 rating = 3;
+  string content = 4;
+  int64 from_user_id = 5;
+}
+
+message SubmitReviewReply {
+  int64 review_id = 1;
+}
+
+message ReviewItem {
+  int64 id = 1;
+  int64 order_id = 2;
+  int64 from_user_id = 3;
+  int64 to_user_id = 4;
+  int32 rating = 5;
+  string content = 6;
+  string created_at = 7;
+}
+
+message GetMyReviewRequest {
+  int64 order_id = 1;
+  int64 from_user_id = 2;
+}
+
+message GetMyReviewReply {
+  bool has_review = 1;
+  ReviewItem review = 2;
+}
