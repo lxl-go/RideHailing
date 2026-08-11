@@ -195,6 +195,93 @@ func TestMobileAIRoutesCallCozeClient(t *testing.T) {
 	require.Equal(t, float64(0), decodeGatewayBody(t, res)["code"])
 }
 
+func TestDriverTravelAdviceForwardsToPythonAgent(t *testing.T) {
+	var forwarded map[string]any
+	agent := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPost, r.Method)
+		require.Equal(t, "/travel-advice", r.URL.Path)
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&forwarded))
+		w.Header().Set("Content-Type", "application/json")
+		require.NoError(t, json.NewEncoder(w).Encode(map[string]any{
+			"riskLevel":     "medium",
+			"summary":       "Rain may affect this trip.",
+			"weatherAdvice": []string{"Check rain warning"},
+			"routeAdvice":   []string{"Leave 10 minutes earlier"},
+			"safetyAdvice":  []string{"Keep distance"},
+			"displayText":   "AI advice ready",
+		}))
+	}))
+	defer agent.Close()
+	t.Setenv("AI_TRAVEL_AGENT_URL", agent.URL)
+
+	srv := khttp.NewServer()
+	registerMobileAIDispatchRoutesWithDeps(srv, &fakeMobileOrderService{}, &fakeMobileDriverTrackingService{}, &fakeMobileAIClient{}, newMobileTrackStore())
+
+	res := doGatewayJSONWithUser(srv, http.MethodPost, "/api/v1/driver/ai/travel-advice", `{
+		"orderId":"5001",
+		"startAddress":"Shanghai Station",
+		"endAddress":"Hongqiao Airport",
+		"driverLat":31.2304,
+		"driverLng":121.4737,
+		"scene":"before_departure"
+	}`, 2001)
+
+	require.Equal(t, http.StatusOK, res.Code)
+	require.Equal(t, "5001", forwarded["orderId"])
+	require.Equal(t, "2001", forwarded["driverId"])
+	require.Equal(t, "driver", forwarded["userRole"])
+	require.Equal(t, "Shanghai Station", forwarded["startAddress"])
+	require.Equal(t, "Hongqiao Airport", forwarded["endAddress"])
+
+	payload := decodeGatewayBody(t, res)
+	require.Equal(t, float64(0), payload["code"])
+	data := payload["data"].(map[string]any)
+	require.Equal(t, "medium", data["riskLevel"])
+	require.Equal(t, "AI advice ready", data["displayText"])
+}
+
+func TestDriverNearbyTravelAdviceDoesNotRequireOrderID(t *testing.T) {
+	var forwarded map[string]any
+	agent := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPost, r.Method)
+		require.Equal(t, "/travel-advice", r.URL.Path)
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&forwarded))
+		w.Header().Set("Content-Type", "application/json")
+		require.NoError(t, json.NewEncoder(w).Encode(map[string]any{
+			"mode":           "nearby",
+			"riskLevel":      "low",
+			"summary":        "周边 5 公里路况可接单。",
+			"trafficAdvice":  []string{"周边道路整体畅通"},
+			"dispatchAdvice": []string{"可继续接单"},
+			"displayText":    "AI预警已生成",
+		}))
+	}))
+	defer agent.Close()
+	t.Setenv("AI_TRAVEL_AGENT_URL", agent.URL)
+
+	srv := khttp.NewServer()
+	registerMobileAIDispatchRoutesWithDeps(srv, nil, nil, &fakeMobileAIClient{}, newMobileTrackStore())
+
+	res := doGatewayJSONWithUser(srv, http.MethodPost, "/api/v1/driver/ai/travel-advice", `{
+		"mode":"nearby",
+		"driverLat":31.2304,
+		"driverLng":121.4737,
+		"scene":"idle_warning"
+	}`, 2001)
+
+	require.Equal(t, http.StatusOK, res.Code)
+	require.Equal(t, "nearby", forwarded["mode"])
+	require.Equal(t, "2001", forwarded["driverId"])
+	require.Equal(t, float64(31.2304), forwarded["driverLat"])
+	require.Equal(t, float64(121.4737), forwarded["driverLng"])
+
+	payload := decodeGatewayBody(t, res)
+	require.Equal(t, float64(0), payload["code"])
+	data := payload["data"].(map[string]any)
+	require.Equal(t, "nearby", data["mode"])
+	require.Equal(t, "AI预警已生成", data["displayText"])
+}
+
 func TestGatewayTravelRouteInfoIsPublicForCozeCallback(t *testing.T) {
 	srv := khttp.NewServer()
 	registerMobileAIDispatchRoutesWithDeps(srv, nil, nil, &fakeMobileAIClient{}, newMobileTrackStore())

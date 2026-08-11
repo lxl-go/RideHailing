@@ -1,8 +1,11 @@
 package server
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
 	"os"
@@ -27,6 +30,7 @@ const (
 	cozeRainRouteWorkflowURLEnv   = "COZE_RAIN_ROUTE_WORKFLOW_URL"
 	cozeTravelBotProjectIDEnv     = "COZE_TRAVEL_BOT_PROJECT_ID"
 	cozeTravelBotSessionIDEnv     = "COZE_TRAVEL_BOT_SESSION_ID"
+	aiTravelAgentURLEnv           = "AI_TRAVEL_AGENT_URL"
 )
 
 type mobileAIClient interface {
@@ -100,6 +104,20 @@ type mobileLocationReportRequest struct {
 	Speed      float64 `json:"speed"`
 	Heading    float64 `json:"heading"`
 	ReportedAt string  `json:"reportedAt"`
+}
+
+type mobileDriverTravelAdviceRequest struct {
+	Mode             string  `json:"mode"`
+	OrderID          any     `json:"orderId"`
+	OrderStatus      string  `json:"orderStatus"`
+	StartAddress     string  `json:"startAddress"`
+	EndAddress       string  `json:"endAddress"`
+	DriverLat        float64 `json:"driverLat"`
+	DriverLng        float64 `json:"driverLng"`
+	RouteDistanceKm  float64 `json:"routeDistanceKm"`
+	EstimatedMinutes float64 `json:"estimatedMinutes"`
+	WeatherText      string  `json:"weatherText"`
+	Scene            string  `json:"scene"`
 }
 
 func (r *mobileLocationReportRequest) normalizedCoordinates() (float64, float64, bool) {
@@ -353,6 +371,82 @@ func registerMobileAIDispatchRoutesWithDeps(srv *khttp.Server, orderSvc mobileOr
 	})
 	router.GET("/api/v1/driver/ai-alerts", func(ctx khttp.Context) error {
 		return returnData(ctx, map[string]any{"list": trackStore.listFloodAlerts(), "total": len(trackStore.listFloodAlerts())}, nil)
+	})
+	router.POST("/api/v1/driver/ai/travel-advice", func(ctx khttp.Context) error {
+		req := new(mobileDriverTravelAdviceRequest)
+		if err := ctx.Bind(req); err != nil {
+			return err
+		}
+		driverID := UserIDFromRequest(ctx.Request())
+		if driverID <= 0 {
+			return errors.New("current driver user is required")
+		}
+		mode := normalizeMobileTravelAdviceMode(req.Mode)
+		var orderID int64
+		startAddress := strings.TrimSpace(req.StartAddress)
+		endAddress := strings.TrimSpace(req.EndAddress)
+		if mode == "order" {
+			var err error
+			orderID, err = parseMobileInt64Value(req.OrderID)
+			if err != nil {
+				return returnBadRequest(ctx, "orderId is invalid")
+			}
+			if orderID <= 0 {
+				return returnBadRequest(ctx, "orderId is required")
+			}
+			if orderSvc != nil {
+				detail, err := orderSvc.GetOrderDetail(ctx, orderID, driverID)
+				if err != nil {
+					return returnData(ctx, nil, err)
+				}
+				if order := detail.GetOrder(); order != nil {
+					if order.GetDriverId() > 0 && order.GetDriverId() != driverID {
+						return returnBadRequest(ctx, "order does not belong to current driver")
+					}
+					if startAddress == "" {
+						startAddress = order.GetOrigin()
+					}
+					if endAddress == "" {
+						endAddress = order.GetDestination()
+					}
+					if strings.TrimSpace(req.OrderStatus) == "" {
+						req.OrderStatus = mobileOrderStatus(order.GetStatus())
+					}
+				}
+			}
+			if startAddress == "" || endAddress == "" {
+				return returnBadRequest(ctx, "startAddress and endAddress are required")
+			}
+		} else if !validMobileCoordinates(req.DriverLat, req.DriverLng) {
+			return returnBadRequest(ctx, "driver location is required for nearby warning")
+		}
+		scene := strings.TrimSpace(req.Scene)
+		if scene == "" {
+			if mode == "nearby" {
+				scene = "idle_warning"
+			} else {
+				scene = "before_departure"
+			}
+		}
+		advice, err := callMobileTravelAgent(ctx, map[string]any{
+			"mode":             mode,
+			"orderId":          int64String(orderID),
+			"driverId":         int64String(driverID),
+			"orderStatus":      strings.TrimSpace(req.OrderStatus),
+			"startAddress":     startAddress,
+			"endAddress":       endAddress,
+			"driverLat":        req.DriverLat,
+			"driverLng":        req.DriverLng,
+			"routeDistanceKm":  req.RouteDistanceKm,
+			"estimatedMinutes": req.EstimatedMinutes,
+			"weatherText":      strings.TrimSpace(req.WeatherText),
+			"scene":            scene,
+			"userRole":         "driver",
+		})
+		if err != nil {
+			return returnData(ctx, nil, err)
+		}
+		return returnData(ctx, advice, nil)
 	})
 	router.GET("/api/v1/driver/stats", func(ctx khttp.Context) error {
 		driverID := UserIDFromRequest(ctx.Request())
@@ -652,6 +746,116 @@ func registerMobileAIDispatchRoutesWithDeps(srv *khttp.Server, orderSvc mobileOr
 
 func returnUnavailable(ctx khttp.Context, msg string) error {
 	return ctx.Returns(map[string]any{"code": http.StatusServiceUnavailable, "data": nil, "msg": msg}, nil)
+}
+
+func callMobileTravelAgent(ctx context.Context, payload map[string]any) (map[string]any, error) {
+	baseURL := strings.TrimRight(strings.TrimSpace(os.Getenv(aiTravelAgentURLEnv)), "/")
+	if baseURL == "" {
+		baseURL = "http://127.0.0.1:8011"
+	}
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL+"/travel-advice", bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	res, err := (&http.Client{Timeout: 20 * time.Second}).Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var decoded map[string]any
+	if err := json.NewDecoder(res.Body).Decode(&decoded); err != nil {
+		return nil, err
+	}
+	if res.StatusCode >= http.StatusBadRequest {
+		return nil, errors.New("AI travel agent request failed")
+	}
+	if code, ok := decoded["code"].(float64); ok && code == 0 {
+		if data, ok := decoded["data"].(map[string]any); ok {
+			return data, nil
+		}
+	}
+	return normalizeMobileTravelAdvice(decoded), nil
+}
+
+func normalizeMobileTravelAdvice(payload map[string]any) map[string]any {
+	if payload == nil {
+		payload = map[string]any{}
+	}
+	result := map[string]any{
+		"riskLevel":      stringValue(payload, "riskLevel", "medium"),
+		"summary":        stringValue(payload, "summary", ""),
+		"weatherAdvice":  stringSliceValue(payload, "weatherAdvice"),
+		"routeAdvice":    stringSliceValue(payload, "routeAdvice"),
+		"safetyAdvice":   stringSliceValue(payload, "safetyAdvice"),
+		"displayText":    stringValue(payload, "displayText", ""),
+		"mode":           stringValue(payload, "mode", "order"),
+		"trafficAdvice":  stringSliceValue(payload, "trafficAdvice"),
+		"dispatchAdvice": stringSliceValue(payload, "dispatchAdvice"),
+		"nearbyTraffic":  payload["nearbyTraffic"],
+	}
+	if result["summary"] == "" {
+		result["summary"] = result["displayText"]
+	}
+	if result["displayText"] == "" {
+		result["displayText"] = result["summary"]
+	}
+	return result
+}
+
+func normalizeMobileTravelAdviceMode(mode string) string {
+	if strings.EqualFold(strings.TrimSpace(mode), "nearby") {
+		return "nearby"
+	}
+	return "order"
+}
+
+func validMobileCoordinates(lat, lng float64) bool {
+	return !math.IsNaN(lat) &&
+		!math.IsNaN(lng) &&
+		!math.IsInf(lat, 0) &&
+		!math.IsInf(lng, 0) &&
+		lat >= -90 &&
+		lat <= 90 &&
+		lng >= -180 &&
+		lng <= 180 &&
+		lat != 0 &&
+		lng != 0
+}
+
+func stringValue(payload map[string]any, key, fallback string) string {
+	if value, ok := payload[key].(string); ok && strings.TrimSpace(value) != "" {
+		return strings.TrimSpace(value)
+	}
+	return fallback
+}
+
+func stringSliceValue(payload map[string]any, key string) []string {
+	raw, ok := payload[key]
+	if !ok || raw == nil {
+		return []string{}
+	}
+	switch values := raw.(type) {
+	case []string:
+		return values
+	case []any:
+		items := make([]string, 0, len(values))
+		for _, item := range values {
+			if text := strings.TrimSpace(fmt.Sprint(item)); text != "" {
+				items = append(items, text)
+			}
+		}
+		return items
+	case string:
+		if text := strings.TrimSpace(values); text != "" {
+			return []string{text}
+		}
+	}
+	return []string{}
 }
 
 func mobilePendingOrderListResponseWithDetails(ctx context.Context, orderSvc mobileOrderService, driverID int64, reply *orderv1.PendingOrdersReply) map[string]any {

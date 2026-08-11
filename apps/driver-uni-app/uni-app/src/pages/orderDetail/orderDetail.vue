@@ -52,7 +52,19 @@
         <view class="info-row"><text class="info-label">当前位置</text><text class="info-value">{{ currentPointText }}</text></view>
       </view>
 
+      <view v-if="aiAdvice" class="ai-advice-card" :class="aiAdvice.riskLevel">
+        <view class="ai-advice-head">
+          <text class="ai-advice-title">AI 出行提醒</text>
+          <text class="ai-risk">风险：{{ riskText(aiAdvice.riskLevel) }}</text>
+        </view>
+        <text class="ai-advice-summary">{{ aiAdvice.displayText || aiAdvice.summary }}</text>
+        <view class="ai-advice-list">
+          <text v-for="(item, idx) in adviceItems" :key="`${item}-${idx}`" class="ai-advice-item">• {{ item }}</text>
+        </view>
+      </view>
+
       <view class="action-row">
+        <u-button type="warning" :loading="aiAdviceLoading" @click="loadAIAdvice">AI 出行提醒</u-button>
         <u-button :plain="true" @click="goChat">联系乘客</u-button>
         <u-button :plain="true" :disabled="!passengerPhone" @click="callPassenger">电话</u-button>
         <u-button v-if="isActiveOrder" type="primary" @click="goLocation">去上报位置</u-button>
@@ -78,6 +90,7 @@
 <script setup>
 import { computed, onUnmounted, ref } from 'vue'
 import { onLoad, onHide, onShow, onUnload } from '@dcloudio/uni-app'
+import { getDriverTravelAdvice } from '@/api/ai'
 import { completeOrder, getDriverOrderDetail, startDeliveryOrder, startPickupOrder } from '@/api/order'
 import { getDriverLocationHistory } from '@/api/location'
 import { getRoutePreview } from '@/api/map'
@@ -88,6 +101,8 @@ const loading = ref(true)
 const completing = ref(false)
 const startingPickup = ref(false)
 const startingDelivery = ref(false)
+const aiAdviceLoading = ref(false)
+const aiAdvice = ref(null)
 const historyPoints = ref([])
 const routeData = ref(null)
 const currentStep = ref(0)
@@ -125,6 +140,22 @@ const currentPointText = computed(() => {
   const lat = point.latitude ?? point.lat ?? '-'
   const lng = point.longitude ?? point.lng ?? '-'
   return `${lat}, ${lng}`
+})
+
+const riskText = (risk) =>
+  ({
+    low: '低',
+    medium: '中',
+    high: '高',
+  }[risk] || '中')
+
+const adviceItems = computed(() => {
+  const advice = aiAdvice.value || {}
+  return [
+    ...(advice.weatherAdvice || []),
+    ...(advice.routeAdvice || []),
+    ...(advice.safetyAdvice || []),
+  ].filter(Boolean)
 })
 
 const events = computed(() => {
@@ -266,6 +297,7 @@ const loadHistory = async () => {
 const load = async () => {
   if (!orderId.value) return
   loading.value = true
+  aiAdvice.value = null
   routeData.value = null
   historyPoints.value = []
   try {
@@ -320,6 +352,27 @@ const goChat = () => {
 const goLocation = () => {
   uni.setStorageSync('driverActiveOrderId', orderId.value)
   uni.switchTab({ url: '/pages/locationReport/locationReport' })
+}
+
+const loadAIAdvice = async () => {
+  if (!order.value || aiAdviceLoading.value) return
+  aiAdviceLoading.value = true
+  const point = currentPoint.value || {}
+  const res = await getDriverTravelAdvice({
+    orderId: String(order.value.id || orderId.value),
+    startAddress: order.value.origin || '',
+    endAddress: order.value.destination || '',
+    driverLat: Number(point.latitude ?? point.lat ?? 0),
+    driverLng: Number(point.longitude ?? point.lng ?? 0),
+    scene: isActiveOrder.value ? 'on_trip' : 'before_departure',
+  })
+  aiAdviceLoading.value = false
+  if (res?.code === 0) {
+    aiAdvice.value = res.data || null
+    uni.showToast({ title: 'AI提醒已生成', icon: 'success' })
+  } else {
+    uni.showToast({ title: res?.msg || 'AI提醒生成失败', icon: 'none' })
+  }
 }
 
 const actionPayload = (action) => ({ idempotency_key: `d-${orderId.value}-${action}-${Date.now()}` })
@@ -526,8 +579,60 @@ onUnmounted(() => stopPolling())
 .info-value.price {
   color: #ee0a24;
 }
+.ai-advice-card {
+  margin-top: 20rpx;
+  padding: 28rpx;
+  border-radius: 20rpx;
+  background: #fff8e6;
+  border: 1rpx solid #ffd591;
+  box-shadow: 0 8rpx 24rpx rgba(16, 24, 40, 0.06);
+}
+.ai-advice-card.high {
+  background: #fff1f0;
+  border-color: #ffccc7;
+}
+.ai-advice-card.low {
+  background: #f6ffed;
+  border-color: #b7eb8f;
+}
+.ai-advice-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+.ai-advice-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1f2937;
+}
+.ai-risk {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #ad6800;
+}
+.ai-advice-summary {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: #1f2937;
+}
+.ai-advice-list {
+  margin-top: 14rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.ai-advice-item {
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: #4b5563;
+}
 .action-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 20rpx;
   margin-top: 32rpx;
 }

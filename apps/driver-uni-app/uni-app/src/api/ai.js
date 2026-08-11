@@ -13,3 +13,9 @@ export const getDriverAIAlerts = (params = {}) =>
 
 export const getDriverTrackReplay = (params = {}) =>
   request({ url: '/api/v1/driver/track/replay', method: 'GET', params: mobilePageParams(params), silent: true })
+
+export const getDriverTravelAdvice = (data = {}) =>
+  request({ url: '/api/v1/driver/ai/travel-advice', method: 'POST', data, silent: true })
+
+export const getDriverAIWarning = (data = {}) =>
+  request({ url: '/api/v1/driver/ai/travel-advice', method: 'POST', data, silent: true })
