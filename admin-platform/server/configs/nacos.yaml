@@ -1,9 +1,9 @@
 nacos:
-  enabled: false
+  enabled: true
   fail-fast: false
-  server-addr: "127.0.0.1:8848"
+  server-addr: "115.190.237.41:8848"
   namespace: "public"
-  data-id: "ride-car"
+  data-id: "admin-platform.yaml"
   group: "DEFAULT_GROUP"
   username: "nacos"
   password: "nacos"

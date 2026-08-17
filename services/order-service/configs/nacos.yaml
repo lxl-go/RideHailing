@@ -1,2 +1,11 @@
 nacos:
-  enabled: false
+  enabled: true
+  server_addr: 115.190.237.41
+  server_port: 8848
+  namespace_id: public
+  data_id: order-service.yaml
+  group: DEFAULT_GROUP
+  username: nacos
+  password: nacos
+  timeout_ms: 5000
+  fail_fast: false
